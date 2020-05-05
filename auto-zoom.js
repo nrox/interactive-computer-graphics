@@ -32,6 +32,44 @@ class ImageScrollingInterface {
         let scale = this.scale
         this.setState(sx, sy, scale)
     }
+    zoomScrolling(){
+        let sx = this.sx0 - this.xm + this.x0
+        let sy = this.sy0 - this.ym + this.y0
+        let v = this.getSpeed()
+        let scale = this.scale0 * (10*v + 1)
+        this.setState(sx, sy, scale)
+    }
+    scrolling(){
+        //this.simpleScrolling();
+        this.zoomScrolling();
+    }
+    getSpeed(){
+        if (!this.pressed) return 0
+        return Math.sqrt(this.vx * this.vx + this.vy * this.vy)
+    }
+    updateVelocity(x, y, t){
+        const alpha = 300
+        const self = this
+        const lastVx = self.vx || 0 
+        const lastVy = self.vy || 0 
+        const lastT = self.lastT || (t-1) 
+        const lastX = self.lastX || x
+        const lastY = self.lastY || y
+        const dt = t - lastT
+        const weight = Math.min(dt / alpha, 1)
+        let vx = (x - lastX) / dt
+        let vy = (y - lastY) / dt
+        vx = vx * weight + lastVx * (1-weight)
+        vy = vy * weight + lastVy * (1-weight)
+        self.lastX = x
+        self.lastY = y
+        self.lastT = t
+        self.xm = x
+        self.ym = y
+        self.vx = vx
+        self.vy = vy
+        //console.log("vx: " + self.vx, "vy: " + self.vy); 
+    }
     registerEvents(canvas){
         const self = this
         canvas.addEventListener("mousedown", mouseDown); 
@@ -47,9 +85,9 @@ class ImageScrollingInterface {
             self.y0 = y
             self.sx0 = self.sx
             self.sy0 = self.sy
-            self.scale0 = self.scale
+            self.scale0 = 1
             self.time0 = new Date().getTime()
-            console.log("Coordinate x: " + x, "Coordinate y: " + y); 
+            //console.log("Coordinate x: " + x, "Coordinate y: " + y); 
         } 
         function mouseUp(event) { 
             self.pressed = false
@@ -58,8 +96,11 @@ class ImageScrollingInterface {
             let y = event.clientY - rect.top; 
             self.x1 = x
             self.y1 = y
+            self.scale0 = 1
             self.time1 = new Date().getTime()
-            console.log("Coordinate x: " + x, "Coordinate y: " + y); 
+            self.scrolling()
+            self.draw()
+            //console.log("Coordinate x: " + x, "Coordinate y: " + y); 
         } 
         function mouseMove(event) { 
             if (!self.pressed) return
@@ -67,16 +108,8 @@ class ImageScrollingInterface {
             let x = event.clientX - rect.left; 
             let y = event.clientY - rect.top; 
             let t = new Date().getTime()
-            self.dt = t - (self.lastT===undefined? (t+1) : self.lastT)
-            self.dx = (x - (self.lastX===undefined? x : self.lastX)) / self.dt
-            self.dy = (y - (self.lastY===undefined? y : self.lastY)) / self.dt
-            self.lastX = x
-            self.lastY = y
-            self.lastT = t
-            self.xm = x
-            self.ym = y
-            console.log("dx: " + self.dx, "dy: " + self.dy); 
-            self.simpleScrolling()
+            self.updateVelocity(x,y,t)
+            self.scrolling()
             self.draw()
         } 
     }
