@@ -13,6 +13,25 @@ class ImageScrollingInterface {
         this.scale = 1
         this.registerEvents(c)
     }
+    setState(sx, sy, scale){
+        this.sx = sx
+        this.sy = sy
+        this.scale = scale
+    }
+    draw(){
+        let sWidth = Math.round(this.scale * this.dWidth)
+        let sHeight = sWidth
+        let dx = 0
+        let dy = 0
+        this.ctx.clearRect(dx,dy, this.dWidth, this.dHeight)
+        this.ctx.drawImage(this.image, this.sx, this.sy, sWidth, sHeight, dx, dy, this.dWidth, this.dHeight)
+    }
+    simpleScrolling(){
+        let sx = this.sx0 - this.xm + this.x0
+        let sy = this.sy0 - this.ym + this.y0
+        let scale = this.scale
+        this.setState(sx, sy, scale)
+    }
     registerEvents(canvas){
         const self = this
         canvas.addEventListener("mousedown", mouseDown); 
@@ -26,6 +45,9 @@ class ImageScrollingInterface {
             let y = event.clientY - rect.top; 
             self.x0 = x
             self.y0 = y
+            self.sx0 = self.sx
+            self.sy0 = self.sy
+            self.scale0 = self.scale
             self.time0 = new Date().getTime()
             console.log("Coordinate x: " + x, "Coordinate y: " + y); 
         } 
@@ -51,20 +73,12 @@ class ImageScrollingInterface {
             self.lastX = x
             self.lastY = y
             self.lastT = t
+            self.xm = x
+            self.ym = y
             console.log("dx: " + self.dx, "dy: " + self.dy); 
+            self.simpleScrolling()
+            self.draw()
         } 
-    }
-    setState(sx, sy, scale){
-        this.sx = sx
-        this.sy = sy
-        this.scale = scale
-    }
-    draw(){
-        let sWidth = Math.round(this.scale * this.dWidth)
-        let sHeight = sWidth
-        let dx = 0
-        let dy = 0
-        this.ctx.drawImage(this.image, this.sx, this.sy, sWidth, sHeight, dx, dy, this.dWidth, this.dHeight)
     }
 }
 
