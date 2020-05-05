@@ -1,0 +1,10 @@
+
+
+#canvas, #image {
+    border: 2px solid black;
+    width: 300px;
+}
+
+#canvas {
+    height: 300px;
+}
