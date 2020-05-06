@@ -17,7 +17,6 @@ class Item {
     let prop = this.prop
     let rect = draw.rect(prop.width, prop.height)
     rect.addClass(prop.cls)
-    rect.fill('orange')
     rect.move(prop.x || 0, prop.y || 0)
     rect.draggable()
     this.rect = rect
@@ -35,11 +34,7 @@ class Item {
   addEvents(){
     const self = this
     this.rect.draggable().on('dragmove', e => {
-      const { handler, box } = e.detail
-      let x = box.x
-      let y = box.y
-      console.log(`${x},${y}`)
-      console.log(self.getCenter())
+
     })
   }
   getCenter(){
@@ -52,18 +47,11 @@ class Item {
   }
 }
 
-function createItems(draw){
-  let item1 = new Item({x: 100, y: 30, width: 100, height: 100, cls: 'item'})
-  let item2 = item1.clone()
-  item1.create(draw)
-  item2.create(draw)
-  item1.move(50, 90).setColor('#954')
-  item2.move(150, 290).setColor('#297')
+class Field {
+  constructor(item){
+    this.item = item
+  }
+  valueAt({x, y}){
 
-
+  }
 }
-
-window.addEventListener('load', (event) => {
-  let draw = SVG('#svg')
-  createItems(draw)
-});
