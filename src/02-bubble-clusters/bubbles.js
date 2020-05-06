@@ -48,10 +48,15 @@ class Item {
 }
 
 class Field {
-  constructor(item){
+  constructor(item, radius){
     this.item = item
+    this.radius = radius
   }
   valueAt({x, y}){
-
+    let center = this.item.getCenter()
+    let radius = this.radius
+    let distance = Math.sqrt(Math.pow(center.x - x, 2) + Math.pow(center.y - y, 2)) 
+    if (distance>=radius) return 0
+    return 1 - distance/radius
   }
 }
