@@ -8,3 +8,8 @@
 #canvas {
     height: 300px;
 }
+
+#big_canvas {
+    border: 2px solid black;
+    width: 80%;
+}

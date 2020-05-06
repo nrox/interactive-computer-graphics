@@ -1,0 +1,29 @@
+{
+  "name": "interactive-computer-graphics",
+  "version": "1.0.0",
+  "description": "https://www.coursera.org/learn/interactive-computer-graphics",
+  "main": "gruntfile.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nrox/interactive-computer-graphics.git"
+  },
+  "author": "nrox",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nrox/interactive-computer-graphics/issues"
+  },
+  "homepage": "https://github.com/nrox/interactive-computer-graphics#readme",
+  "devDependencies": {
+    "grunt-contrib-connect": "^2.1.0",
+    "grunt-contrib-watch": "^1.1.0"
+  },
+  "dependencies": {
+    "grunt": "^1.1.0"
+  }
+}
