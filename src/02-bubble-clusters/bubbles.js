@@ -9,7 +9,7 @@ class Field {
     let radius = this.radius
     let distance = Math.sqrt(Math.pow(center.x - x, 2) + Math.pow(center.y - y, 2)) 
     if (distance>=radius) return 0
-    return 1 - distance/radius
+    return Math.sqrt(1 - distance/radius)
   }
 }
 
@@ -48,13 +48,13 @@ class Item {
   }
   addEvents(){
     const self = this
-    this.rect.draggable().on('dragmove', e => {
-
+    this.rect.on('dragstart', e => {
+      self.rect.front()
     })
   }
   getCenter(){
-    let x = (2*this.rect.x() + this.rect.width())/2
-    let y = (2*this.rect.y() + this.rect.height())/2
+    let x = this.rect.x() + this.rect.width()/2
+    let y = this.rect.y() + this.rect.height()/2
     return {x,y}
   }
   clone(){
@@ -72,6 +72,13 @@ class Group {
     this.prop = properties
     this.items = []
     this.initField()
+  }
+  gridXY(column, row){
+    let delta = this.prop.delta
+    return {
+      x: column * delta,
+      y: row * delta
+    }
   }
   initField(){
     const delta = this.prop.delta
@@ -103,13 +110,9 @@ class Group {
   computeField(){
     this.resetField()
     let field = this.field
-    const delta = this.prop.delta 
     for (let xc = 0; xc < field.length; xc++){
       for (let yr = 0; yr < field[xc].length; yr++){
-        let position = {
-          x: xc * delta,
-          y: yr * delta
-        }
+        let position = this.gridXY(xc, yr)
         for (let i in this.items){
           let item = this.items[i]
           let value = item.field.valueAt(position)
@@ -126,6 +129,33 @@ class Group {
     for (let i in items) this.add(items[i])
   }
   showField(draw){
-
+    const delta = this.prop.delta
+    const radius = delta / 2
+    let field = this.field
+    if (!this.marks) this.marks = []
+    let marks = this.marks
+    for (let xc = 0; xc < field.length; xc++){
+      if (!marks[xc]) marks.push([])
+      for (let yr = 0; yr < field[xc].length; yr++){
+        let markRadius = Math.min(2, field[xc][yr]) * radius
+        if (!marks[xc][yr]) {
+          let {x, y} = this.gridXY(xc, yr)
+          marks[xc].push(draw.circle(2*markRadius).move(x,y).attr({fill: '#933', opacity: 0.5}))
+          marks[xc][yr].back()
+        } else if (marks[xc][yr].rx()!=markRadius) {
+          marks[xc][yr].radius(markRadius)
+        } 
+      }
+    }
+  }
+  drawFieldsOnMove(draw){
+    let self = this
+    let items = this.items
+    for (let i in items){
+        items[i].rect.on("dragmove", (e)=>{
+            self.computeField()
+            self.showField(draw)
+        })
+    }
   }
 }
