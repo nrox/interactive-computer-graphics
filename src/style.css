@@ -9,7 +9,11 @@
     height: 300px;
 }
 
-#big_canvas {
+#svg {
     border: 2px solid black;
     width: 80%;
+}
+
+.item:hover {
+    cursor: pointer;
 }
