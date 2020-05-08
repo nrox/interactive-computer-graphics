@@ -31,6 +31,8 @@ class Item {
     this.draw = draw
     let prop = this.prop
     let rect = draw.rect(prop.width, prop.height)
+    const borderRadius = Math.round(0.15*Math.min(prop.width,prop.height))
+    rect.radius(borderRadius)
     rect.addClass(prop.cls)
     rect.move(prop.x || 0, prop.y || 0)
     rect.draggable()
@@ -63,7 +65,7 @@ class Item {
 }
 
 
-class Group {
+class Collection {
   /**
    * 
    * @param {object} {delta, width, height} 
@@ -138,12 +140,14 @@ class Group {
       if (!marks[xc]) marks.push([])
       for (let yr = 0; yr < field[xc].length; yr++){
         let markRadius = Math.min(2, field[xc][yr]) * radius
+        let {x, y} = this.gridXY(xc, yr)
+        x -= markRadius
+        y -= markRadius
         if (!marks[xc][yr]) {
-          let {x, y} = this.gridXY(xc, yr)
           marks[xc].push(draw.circle(2*markRadius).move(x,y).attr({fill: '#933', opacity: 0.5}))
           marks[xc][yr].back()
         } else if (marks[xc][yr].rx()!=markRadius) {
-          marks[xc][yr].radius(markRadius)
+          marks[xc][yr].radius(markRadius).move(x,y)
         } 
       }
     }

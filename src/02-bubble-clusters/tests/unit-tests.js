@@ -21,11 +21,11 @@ describe("bubbles.js", () => {
         return field.map(row=>row.map(testFunction).reduce((a,b)=>a&&b)).reduce((a,b)=>a&&b)
     }
 
-    function drawFieldsOnMove(group){
+    function drawFieldsOnMove(collection){
         for (let i in ITEMS){
             ITEMS[i].rect.on("dragmove", (e)=>{
-                group.computeField()
-                group.showField(DRAW)
+                collection.computeField()
+                collection.showField(DRAW)
             })
         }
     }
@@ -57,31 +57,31 @@ describe("bubbles.js", () => {
         console.log(item)
     })
 
-    it("Group", () => {
+    it("Collection", () => {
         const prop = {delta: 16, width: 420, height: 420}
-        const group = new Group(prop)
-        group.addItems(ITEMS)
-        expect(group.items.length).toBe(ITEMS.length)
+        const collection = new Collection(prop)
+        collection.addItems(ITEMS)
+        expect(collection.items.length).toBe(ITEMS.length)
 
-        let all0 = testField(group.field, value => value == 0)
-        let numeric = testField(group.field, value => !isNaN(value))
+        let all0 = testField(collection.field, value => value == 0)
+        let numeric = testField(collection.field, value => !isNaN(value))
         expect(numeric).toBe(true)
         expect(all0).toBe(true)
         
-        group.computeField()
-        all0 = testField(group.field, value => value == 0)
-        numeric = testField(group.field, value => !isNaN(value))
+        collection.computeField()
+        all0 = testField(collection.field, value => value == 0)
+        numeric = testField(collection.field, value => !isNaN(value))
         expect(numeric).toBe(true)
         expect(all0).toBe(false)
-        group.showField(DRAW)
+        collection.showField(DRAW)
 
-        group.resetField()
-        all0 = testField(group.field, value => value == 0)
-        numeric = testField(group.field, value => !isNaN(value))
+        collection.resetField()
+        all0 = testField(collection.field, value => value == 0)
+        numeric = testField(collection.field, value => !isNaN(value))
         expect(numeric).toBe(true)
         expect(all0).toBe(true)
 
-        drawFieldsOnMove(group)
+        drawFieldsOnMove(collection)
     })
 
 })

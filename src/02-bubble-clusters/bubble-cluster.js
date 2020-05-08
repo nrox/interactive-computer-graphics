@@ -7,11 +7,11 @@ function createItems(draw){
   let item3 = item.clone().create(draw).move(210, 50).setColor('#941')
   let item4 = item.clone().create(draw).move(310, 150).setColor('#396')
   const prop = {delta: 16, width: 550, height: 550}
-  const group = new Group(prop)
-  group.addItems([item1, item2, item3, item4])
-  group.computeField()
-  group.showField(draw)
-  group.drawFieldsOnMove(draw)
+  const collection = new Collection(prop)
+  collection.addItems([item1, item2, item3, item4])
+  collection.computeField()
+  collection.showField(draw)
+  collection.drawFieldsOnMove(draw)
 }
 
 window.addEventListener('load', (event) => {
