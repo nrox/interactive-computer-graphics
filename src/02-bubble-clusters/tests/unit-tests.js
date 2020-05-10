@@ -14,6 +14,7 @@ describe("bubbles.js", () => {
         let item = new Item({x: 0, y: 0, width: 32, height: 32, cls: 'item', radius: 64})
         let item1 = item.clone().create(draw).move(16, 16).setColor('#345')
         let item2 = item.clone().create(draw).move(48, 48).setColor('#891')
+        let link = new Link(item1, item2)
         return [item1, item2]
     }
 
@@ -26,11 +27,17 @@ describe("bubbles.js", () => {
             ITEMS[i].rect.on("dragmove", (e)=>{
                 collection.computeField()
                 collection.showField(DRAW)
+                collection.network.reconnect()
             })
         }
     }
 
     it("...", () => {
+        expect(true).toBe(true)
+    })
+
+    it("Symbol", () => {
+        let a = Symbol("a");
         expect(true).toBe(true)
     })
 
@@ -53,8 +60,6 @@ describe("bubbles.js", () => {
         let farAway = item.getCenter()
         farAway.x += 1.5*radius
         expect(field.valueAt(farAway)).toBe(0)
-
-        console.log(item)
     })
 
     it("Collection", () => {

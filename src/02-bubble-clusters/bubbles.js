@@ -13,13 +13,73 @@ class Field {
   }
 }
 
+class Link{
+  constructor(item1, item2){
+    this.id = Symbol("Link")
+    this.item1 = item1
+    this.item2 = item2
+    item1.setLink(this)
+    item2.setLink(this)
+  }
+  contains(item){
+    return (this.item1 == item) || (this.item2 == item)
+  }
+  destroy(){
+    this.item1.removeLink(this)
+    this.item2.removeLink(this)
+    if (this.line) {
+      this.line.remove()
+      delete this.line
+    }
+  }
+  getId(){
+    return this.id
+  }
+  create(draw){
+    this.draw = draw
+    let c1 = this.item1.getCenter()
+    let c2 = this.item2.getCenter()
+    this.line = draw.line(c1.x, c1.y, c2.x, c2.y).stroke({ width: 4, color: '#77a'}).back()
+    //line.stroke({ color: '#f06', width: 10, linecap: 'round' })
+    return this
+  }
+  update(draw){
+    if (!this.line && draw) {
+      return this.create(draw)
+    }
+    let c1 = this.item1.getCenter()
+    let c2 = this.item2.getCenter()
+    this.line.plot(c1.x, c1.y, c2.x, c2.y)
+    return this
+  }
+}
+
 class Item {
   /**
    * @param {object} properties {x, y, width, height, cls} 
    */
   constructor(properties){
+    this.id = Symbol("Item")
     this.prop = properties
     this.field = new Field(this, properties.radius || properties.width)
+    this.links = {}
+  }
+  getId(){
+    return this.id
+  }
+  setLink(link){
+    this.links[link.getId()] = link
+  }
+  removeLink(link){
+    delete this.links[link.getId()]
+  }
+  hasLink(otherItem){
+    const linkIds = Object.getOwnPropertySymbols(this.links);
+    for(let id in linkIds){
+      let link = this.links[linkIds[id]]
+      if (link.contains(otherItem)) return link
+    }
+    return false
   }
   setProp(name, value){
     this.prop[name] = value
@@ -50,8 +110,15 @@ class Item {
   }
   addEvents(){
     const self = this
-    this.rect.on('dragstart', e => {
+    self.rect.on('dragstart', e => {
       self.rect.front()
+    })
+    self.rect.on("dragmove", (e)=>{
+      const linkIds = Object.getOwnPropertySymbols(self.links);
+      for(let id in linkIds){
+        let link = self.links[linkIds[id]]
+        link.update(self.draw)
+      }
     })
   }
   getCenter(){
@@ -61,6 +128,11 @@ class Item {
   }
   clone(){
     return new Item({...this.prop})
+  }
+  distanceTo(other){
+    let c1 = this.getCenter()
+    let c2 = other.getCenter()
+    return Math.sqrt(Math.pow(c1.x-c2.x, 2)+Math.pow(c1.y-c2.y, 2))
   }
 }
 
@@ -74,6 +146,7 @@ class Collection {
     this.prop = properties
     this.items = []
     this.initField()
+    this.network = new Network(this.items, 10 * properties.delta)
   }
   gridXY(column, row){
     let delta = this.prop.delta
@@ -144,7 +217,7 @@ class Collection {
         x -= markRadius
         y -= markRadius
         if (!marks[xc][yr]) {
-          marks[xc].push(draw.circle(2*markRadius).move(x,y).attr({fill: '#933', opacity: 0.5}))
+          marks[xc].push(draw.circle(2*markRadius).move(x,y).attr({fill: '#933', opacity: 0.2}))
           marks[xc][yr].back()
         } else if (marks[xc][yr].rx()!=markRadius) {
           marks[xc][yr].radius(markRadius).move(x,y)
@@ -156,10 +229,36 @@ class Collection {
     let self = this
     let items = this.items
     for (let i in items){
-        items[i].rect.on("dragmove", (e)=>{
-            self.computeField()
-            self.showField(draw)
-        })
+      items[i].rect.on("dragmove", (e)=>{
+        self.network.reconnect()
+        self.computeField()
+        self.showField(draw)
+      })
+    }
+  }
+}
+
+class Network {
+  constructor(items, clusterThreshold){
+    this.items = items
+    this.clusterThreshold = clusterThreshold
+  }
+  reconnect(){
+    const distance = this.clusterThreshold
+    for (let i in this.items){
+      let item1 = this.items[i]
+      for (let j in this.items){
+        if (j==i) continue
+        let item2 = this.items[j]
+        let d = item1.distanceTo(item2)
+        let link = item1.hasLink(item2)
+        if ((d>distance) && link){
+          link.destroy()
+        }
+        if ((d<=distance) && !link){
+          new Link(item1, item2)
+        }
+      }
     }
   }
 }
