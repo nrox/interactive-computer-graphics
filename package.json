@@ -25,6 +25,6 @@
   },
   "dependencies": {
     "@svgdotjs/svg.draggable.js": "^3.0.2",
-    "grunt": "^1.1.0"
+    "grunt": "^1.5.2"
   }
 }
